@@ -1,0 +1,84 @@
+#!/usr/bin/env python3
+#-------------------------------------------------
+#
+#  git checkout - utility to ensuplate git branch
+#                 and checkout 
+#-------------------------------------------------
+#
+#  2018 / Dec / 20  V0.1   fand
+#-------------------------------------------------
+import sys,subprocess
+from termcolor import colored
+
+
+def run_cmd(cmd, show_output = False):
+    try :
+        out = subprocess.check_output(cmd, shell=True, stderr=subprocess.STDOUT)
+        output =  out.decode("utf-8")
+        if show_output:
+           print (output.strip())
+        return output
+    except subprocess.CalledProcessError as execout:                                                                                                   
+        output = execout.output.decode("utf-8").strip()
+        print (output)
+        sys.exit(1)
+
+
+def get_branches(path, filter, is_remote = False):
+    cmd = "git -C %s branch "
+    if is_remote:
+       cmd += " -r"
+    if filter :
+       cmd = (cmd + "|grep -i %s") % (path, filter)
+    else:
+       cmd = cmd % path
+    return run_cmd(cmd)
+
+
+def get_branch_name(name):
+   branch_name = name.replace("*", "").strip()
+   remote_prefix = "origin/"
+   if branch_name.startswith(remote_prefix):
+        branch_name = branch_name[ len(remote_prefix):]
+   return branch_name
+
+
+is_remote = False
+
+if '-r' in sys.argv:
+   is_remote = True
+   sys.argv.pop(sys.argv.index('-r'))
+
+out = get_branches(".", sys.argv[1] if len(sys.argv) > 1 else None, is_remote)
+
+if out is None :
+   print ("No branch is selected!")
+   sys.exit(0)
+
+branches = [x.strip() for x in out.strip().split("\n") if x is not None]
+
+if len(branches) == 1:
+   result = run_cmd("git checkout %s" % get_branch_name(branches[0]), show_output = True)
+elif len(branches) == 0:
+   sys.exit(0)
+else :
+   print ("Multiple branches are available : ")
+
+   for x, branch in enumerate(branches):
+        out = "%2d : %s"% (x +1, branch)
+        if branch.startswith("*") :
+           print(colored(out, 'red'))
+        else :
+           print (out)
+
+   while True:
+       sel = input("Select branch[1-%d] or 'q/x exit':" % len(branches) )     
+       if sel in ('q', 'x') :
+          sys.exit(0)
+       if not sel.isnumeric():
+           continue 
+       val = int(sel)
+       if val < 1 or val > len(branches) :
+           continue
+       run_cmd("git checkout %s" % get_branch_name(branches[val - 1]), show_output=True)
+       break
