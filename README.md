@@ -8,20 +8,29 @@ add the following lines un
   
   #vi .bash_aliases 
   
-
+  #git commands alias
+  alias add="git add"
   alias branch='git branch'
-  
   alias branchr='git branch -r'
-  
-  alias ci='git commit -m'
-  
-  alias co='git checkout'
-  
+  alias commit='git commit -m'
+  alias checkout='git checkout'
   alias diff='git diff'
-  
   alias pull='git pull'
-  
   alias push='git push'
-  
-  alias s='git status'
+  alias tag="git tag"
+  alias status='git status'
+
+  #docker commands alias
+  alias dimages="docker images"
+  alias dps="docker ps"
+  alias drm="docker rm"
+  alias drmi="docker rmi"
+  alias drun="docker run -d --rm"
+  alias dexec="docker exec"
+  alias dstop="docker stop"
+  alias dkill="docker kill"
+  alias dlogs="docker logs"
+  alias dstart="docker start"
+  alias dcp="docker cp"
+
   
